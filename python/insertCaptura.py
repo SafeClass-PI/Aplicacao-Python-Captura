@@ -62,7 +62,7 @@ def inserir_dados_e_alertas(maquina, cpu, memoria, disco):
             for comp_nome, valor in registros.items():
                 fk_componente = maquina['componentes'][comp_nome]
                 cursor.execute(
-                    "INSERT INTO Captura (fkComponente, registro, dtCaptura) VALUES (%s, %s, %s)",
+                    "INSERT INTO captura (fkComponente, registro, dtCaptura) VALUES (%s, %s, %s)",
                     (fk_componente, valor, dt)
                 )
                 ids_captura[comp_nome] = cursor.lastrowid
@@ -72,7 +72,7 @@ def inserir_dados_e_alertas(maquina, cpu, memoria, disco):
             # Buscar parâmetros
             cursor.execute(
                 """SELECT idParametro, fkComponente, nivel, minimo, maximo 
-                FROM Parametro 
+                FROM parametro 
                 WHERE fkComponente IN (%s, %s, %s)""",
                 (maquina['componentes']['CPU'],
                 maquina['componentes']['Memoria'],
@@ -83,7 +83,7 @@ def inserir_dados_e_alertas(maquina, cpu, memoria, disco):
             
             # Buscar formatação dos componentes
             cursor.execute(
-                "SELECT idComponente, formatacao FROM Componente WHERE idComponente IN (%s, %s, %s)",
+                "SELECT idComponente, formatacao FROM componente WHERE idComponente IN (%s, %s, %s)",
                 (maquina['componentes']['CPU'],
                 maquina['componentes']['Memoria'],
                 maquina['componentes']['Disco'])
@@ -120,12 +120,12 @@ def inserir_dados_e_alertas(maquina, cpu, memoria, disco):
                     mensagem = f"Uso de {comp_nome} a {captura_formatada}"
 
                     cursor.execute(
-                        "INSERT INTO Alerta (fkParametro, fkCaptura, enviado, mensagem) VALUES (%s, %s, 0, %s)",
+                        "INSERT INTO alerta (fkParametro, fkCaptura, enviado, mensagem) VALUES (%s, %s, 0, %s)",
                         (fkParametro, fkCaptura, mensagem)
                     )
 
                     cursor.execute(
-                        "UPDATE Maquina SET status = %s WHERE idMaquina = %s",
+                        "UPDATE maquina SET status = %s WHERE idMaquina = %s",
                         (nivel, maquina['id_maquina'])
                     )
 
@@ -142,7 +142,7 @@ def inserir_dados_e_alertas(maquina, cpu, memoria, disco):
                 print(f"⚠ Alertas gerados: {len(alertas)}")
             else:
                 cursor.execute(
-                    "UPDATE Maquina SET status = %s WHERE idMaquina = %s",
+                    "UPDATE maquina SET status = %s WHERE idMaquina = %s",
                     ("Estável", maquina['id_maquina'])
                 )
                 db.commit()
@@ -166,7 +166,7 @@ def inserir_ping(maquina, ping_medio):
             dt = datetime.datetime.now()
             fk_componente = maquina['componentes']['Ping']
             cursor.execute(
-                "INSERT INTO Captura (fkComponente, registro, dtCaptura) VALUES (%s, %s, %s)",
+                "INSERT INTO captura (fkComponente, registro, dtCaptura) VALUES (%s, %s, %s)",
                 (fk_componente, ping_medio, dt)
             )
             db.commit()

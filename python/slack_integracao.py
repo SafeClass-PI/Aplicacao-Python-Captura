@@ -46,14 +46,14 @@ def pegar_um_alerta_nao_enviado():
                     pc.minimo AS critico_min,
                     pc.maximo AS critico_max,
                     p.nivel AS nivel_alerta
-                FROM Alerta a
-                JOIN Parametro p ON p.idParametro = a.fkParametro
-                JOIN Componente comp ON comp.idComponente = p.fkComponente
-                JOIN Captura cap ON cap.idCaptura = a.fkCaptura
-                JOIN Maquina m ON m.idMaquina = comp.fkMaquina
-                JOIN Sala s ON s.idSala = m.fkSala
-                LEFT JOIN Parametro pa ON pa.fkComponente = comp.idComponente AND pa.nivel = 'Atenção'
-                LEFT JOIN Parametro pc ON pc.fkComponente = comp.idComponente AND pc.nivel = 'Crítico'
+                FROM alerta a
+                JOIN parametro p ON p.idParametro = a.fkParametro
+                JOIN componente comp ON comp.idComponente = p.fkComponente
+                JOIN captura cap ON cap.idCaptura = a.fkCaptura
+                JOIN maquina m ON m.idMaquina = comp.fkMaquina
+                JOIN sala s ON s.idSala = m.fkSala
+                LEFT JOIN parametro pa ON pa.fkComponente = comp.idComponente AND pa.nivel = 'Atenção'
+                LEFT JOIN parametro pc ON pc.fkComponente = comp.idComponente AND pc.nivel = 'Crítico'
                 WHERE a.enviado = 0 OR a.enviado IS NULL
                 LIMIT 1
             """)
@@ -71,9 +71,9 @@ def pegar_idSlack_da_maquina(idMaquina: int):
         with db.cursor() as cursor:
             cursor.execute("""
                 SELECT e.idSlack
-                FROM Escola e
-                JOIN Sala s ON s.fkEscola = e.idEscola
-                JOIN Maquina m ON m.fkSala = s.idSala
+                FROM escola e
+                JOIN sala s ON s.fkEscola = e.idEscola
+                JOIN maquina m ON m.fkSala = s.idSala
                 WHERE m.idMaquina = %s
             """, (idMaquina,))
             resultado = cursor.fetchone()
@@ -88,7 +88,7 @@ def marcar_alerta_enviado(idAlerta, enviado: int):
     try:
         db = connect(**config)
         with db.cursor() as cursor:
-            cursor.execute("UPDATE Alerta SET enviado = %s WHERE idAlerta = %s", (enviado, idAlerta))
+            cursor.execute("UPDATE alerta SET enviado = %s WHERE idAlerta = %s", (enviado, idAlerta))
             db.commit()
         db.close()
     except Error as e:
